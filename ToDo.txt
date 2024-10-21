@@ -1,7 +1,7 @@
 [+] - Add college
 [+] - Assign SPOC (Initially, when assigning, the SPOC will receive a generated password)
 [-] - Admin dashboard to manage colleges and SPOCs (Add and manage colleges and SPOCs.)
-[-] - Sign-in page for SPOCs and coordinators
+[+] - Sign-in page for SPOCs and coordinators
 [+] - SPOCs can create channels for hubs.
 [-] - System to send an email with the password to SPOCs and Coordinators.
 [+] - change password for SPOCs and Coordinators

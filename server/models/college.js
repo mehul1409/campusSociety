@@ -20,12 +20,6 @@ const CollegeSchema = new mongoose.Schema({
       ref: 'Hub',
     }
   ],
-  students: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Student',
-    }
-  ]
 });
 
 const collegeSchema = mongoose.model('College', CollegeSchema);
