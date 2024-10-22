@@ -5,10 +5,10 @@ const Hub = require('../models/hub.js');
 const Event = require('../models/event.js');
 
 const changePassword = async (req, res) => {
-    const { coordinatorId, currentPassword, newPassword } = req.body;
+    const { email, currentPassword, newPassword } = req.body;
 
     try {
-        const coordinator = await Coordinator.findById(coordinatorId);
+        const coordinator = await Coordinator.findOne({email});
         if (!coordinator) {
             return res.status(404).json({ message: 'Coordinator not found' });
         }
@@ -31,16 +31,16 @@ const changePassword = async (req, res) => {
 };
 
 const postEvent = async (req, res) => {
-    const { hubId, eventDetails } = req.body;
+    const { coordinatorId, eventDetails } = req.body;
     
     try {
-      const hub = await Hub.findById(hubId);
+      const hub = await Hub.findOne({coordinatorId});
       if (!hub) {
         return res.status(404).json({ message: 'Hub not found' });
       }
   
       const newEvent = new Event({
-        hubId,
+        hubId:hub._id,
         eventDetails: {
           title: eventDetails.title,
           description: eventDetails.description,
@@ -103,4 +103,84 @@ const postEvent = async (req, res) => {
     }
 };
 
-module.exports = {changePassword, postEvent, coordinatorLogin};
+const getAllCoordinators = async (req, res) => {
+  try {
+    const customHeader = req.headers['access-token'];
+    if (!customHeader) {
+      res.status(500).send('Headers not provided!');
+    }
+
+    if (customHeader === process.env.accessToken) {
+      const coordinators = await Coordinator.find();
+      res.status(200).json(coordinators);
+    } else {
+      res.status(500).send('Invalid Header value!');
+    }
+  } catch (error) {
+    console.error('Error fetching Coordinators:', error);
+    res.status(500).send('Server error');
+  }
+}
+
+const updateCoordinator = async (req, res) => {
+  const { name, email, password } = req.body;
+  const { coordinatorId } = req.params;
+
+  try {
+    const customHeader = req.headers['access-token'];
+    if (!customHeader) {
+      throw new Error('Header not provided!');
+    }
+    const coordinator = await Coordinator.findById(coordinatorId);
+    if (!coordinator) {
+      return res.status(404).json({ message: 'Coordinator not found' });
+    }
+    if (customHeader === process.env.accessToken) {
+      if (name) {
+        coordinator.name = name;
+      }
+      if (email) {
+        coordinator.email = email;
+      }
+      if (password) {
+        coordinator.password = await bcrypt.hash(password, 10);
+      }
+
+      await coordinator.save();
+
+      return res.status(200).json({ message: 'Coordinators details updated successfully' });
+    } else {
+      throw new Error('Invalid header value!');
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
+const deleteCoordinator = async (req, res) => {
+  const { coordinatorId } = req.params;
+  try {
+    const customHeader = req.headers['access-token'];
+    if (!customHeader) {
+      throw new Error('Header not provided!');
+    }
+    if (customHeader === process.env.accessToken) {
+      const coordinator = await Coordinator.findById(coordinatorId);
+      if (!coordinator) {
+        return res.status(404).json({ message: 'Coordinator not found' });
+      }
+
+      await Coordinator.findByIdAndDelete(coordinatorId);
+
+      return res.status(200).json({ message: 'Coordinator deleted successfully' });
+    } else {
+      throw new Error('Invalid header value!');
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
+module.exports = {changePassword, postEvent, coordinatorLogin, getAllCoordinators, updateCoordinator, deleteCoordinator};

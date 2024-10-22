@@ -2,7 +2,7 @@ const express = require('express');
 const spocRouter = express.Router();
 
 const {changePassword, createHub, spocLogin} = require('../controllers/spocController.js');
-const spoc = require('../models/spoc');
+const spoc = require('../models/spoc.js');
 const verifySpocToken = require('../middleware/spocToken.js');
 
 spocRouter.post('/changePassword',verifySpocToken,changePassword);

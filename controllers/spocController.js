@@ -7,10 +7,10 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const changePassword = async (req, res) => {
-  const { spocId, currentPassword, newPassword } = req.body;
+  const { email, currentPassword, newPassword } = req.body;
 
   try {
-    const spoc = await Spoc.findById(spocId);
+    const spoc = await Spoc.findOne({email});
     if (!spoc) {
       return res.status(404).json({ message: 'SPOC not found' });
     }
@@ -69,7 +69,7 @@ const createHub = async (req, res) => {
       message: 'Hub created successfully',
       hubId: savedHub._id,
       coordinatorId: savedCoordinator._id,
-      password:generatedPassword,
+      password: generatedPassword,
     });
   } catch (error) {
     console.error(error);
@@ -81,29 +81,25 @@ const spocLogin = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    // Find the SPOC by email
     const spoc = await Spoc.findOne({ email });
     if (!spoc) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    // Check if password matches
     const isMatch = await bcrypt.compare(password, spoc.password);
     if (!isMatch) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    // Generate JWT token
     const JWT_SECRET = process.env.JWT_SECRET
     const token = jwt.sign({ spocId: spoc._id, email: spoc.email }, JWT_SECRET, {
       expiresIn: '1h'
     });
 
-    // Set token in an HTTP-only cookie
     res.cookie('token', token, {
       httpOnly: true,
-      maxAge: 3600000, // 1 hour
-      sameSite: 'strict' // CSRF protection
+      maxAge: 3600000,
+      sameSite: 'strict'
     });
 
     return res.status(200).json({ message: 'Login successful' });
@@ -114,4 +110,85 @@ const spocLogin = async (req, res) => {
   }
 }
 
-module.exports = { changePassword, createHub, spocLogin };
+const getAllSpocs = async (req, res) => {
+  try {
+    const customHeader = req.headers['access-token'];
+    if (!customHeader) {
+      res.status(500).send('Headers not provided!');
+    }
+
+    if (customHeader === process.env.accessToken) {
+      const spocs = await Spoc.find();
+      res.status(200).json(spocs);
+    } else {
+      res.status(500).send('Invalid Header value!');
+    }
+  } catch (error) {
+    console.error('Error fetching SPOCs:', error);
+    res.status(500).send('Server error');
+  }
+}
+
+const updateSpoc = async (req, res) => {
+  const { name, email, password } = req.body;
+  const { spocId } = req.params;
+
+  try {
+    const customHeader = req.headers['access-token'];
+    if (!customHeader) {
+      throw new Error('Header not provided!');
+    }
+    const spoc = await Spoc.findById(spocId);
+    if (!spoc) {
+      return res.status(404).json({ message: 'SPOC not found' });
+    }
+    if (customHeader === process.env.accessToken) {
+      if (name) {
+        spoc.name = name;
+      }
+      if (email) {
+        spoc.email = email;
+      }
+      if (password) {
+        spoc.password = await bcrypt.hash(password, 10);
+      }
+
+      await spoc.save();
+
+      return res.status(200).json({ message: 'SPOC details updated successfully' });
+    } else {
+      throw new Error('Invalid header value!');
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
+const deleteSpoc = async (req, res) => {
+  const { spocId } = req.params;
+  try {
+    const customHeader = req.headers['access-token'];
+    if (!customHeader) {
+      throw new Error('Header not provided!');
+    }
+    if (customHeader === process.env.accessToken) {
+      const spoc = await Spoc.findById(spocId);
+      if (!spoc) {
+        return res.status(404).json({ message: 'SPOC not found' });
+      }
+
+      await Spoc.findByIdAndDelete(spocId);
+      await College.updateOne({ spocId }, { $unset: { spocId: "" } });
+
+      return res.status(200).json({ message: 'SPOC deleted successfully' });
+    } else {
+      throw new Error('Invalid header value!');
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
+module.exports = { changePassword, createHub, spocLogin, getAllSpocs, updateSpoc, deleteSpoc };
