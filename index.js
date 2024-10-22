@@ -7,8 +7,11 @@ const spocRouter = require('./routers/spocRouter.js');
 const coordinatorRouter = require('./routers/coordinatorRouter.js');
 const cookieParser = require('cookie-parser');
 const studentRouter = require('./routers/studentRouter.js');
+const { adminLogin, adminRegister } = require('./controllers/adminController.js');
+const authenticateAdmin = require('./middleware/adminToken.js');
 
 const app = express();
+const router = express.Router();
 
 dotenv.config();
 dbConection();
@@ -16,7 +19,16 @@ dbConection();
 app.use(cors());
 app.use(cookieParser());
 app.use(express.json());
-app.use('/admin',adminrouter);
+
+router.post('/adminLogin',adminLogin);
+router.post('/adminRegister',authenticateAdmin, adminRegister);
+router.post('/logout', (req, res) => {
+    res.clearCookie('adminToken');
+    res.status(200).json({ message: 'Logout successful' });
+});
+
+app.use('/api',router);
+app.use('/admin',authenticateAdmin,adminrouter);
 app.use('/spoc',spocRouter);
 app.use('/coordinator',coordinatorRouter);
 app.use('/student',studentRouter);
