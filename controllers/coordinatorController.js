@@ -70,29 +70,25 @@ const postEvent = async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        // Find the coordinator by email
         const coordinator = await Coordinator.findOne({ email });
         if (!coordinator) {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
 
-        // Check if password matches
         const isMatch = await bcrypt.compare(password, coordinator.password);
         if (!isMatch) {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
 
-        // Generate JWT token
         const JWT_SECRET = process.env.JWT_SECRET
         const token = jwt.sign({ coordinatorId: coordinator._id, email: coordinator.email }, JWT_SECRET, {
             expiresIn: '1h'
         });
 
-        // Set token in an HTTP-only cookie
         res.cookie('token', token, {
             httpOnly: true,
-            maxAge: 3600000, // 1 hour
-            sameSite: 'strict' // CSRF protection
+            maxAge: 3600000, 
+            sameSite: 'strict'
         });
 
         return res.status(200).json({ message: 'Login successful' });

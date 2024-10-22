@@ -1,5 +1,6 @@
 const express = require('express');
 const dotenv = require('dotenv');
+const cors = require('cors');
 const dbConection = require('./dbConnection/dbConnection.js');
 const adminrouter = require('./routers/adminRoles.js');
 const spocRouter = require('./routers/spocRouter.js');
@@ -12,6 +13,7 @@ const app = express();
 dotenv.config();
 dbConection();
 
+app.use(cors());
 app.use(cookieParser());
 app.use(express.json());
 app.use('/admin',adminrouter);
@@ -26,4 +28,3 @@ app.listen(process.env.PORT,(error)=>{
         console.log(`Server is started at PORT: ${process.env.PORT}`);
     }
 });
-

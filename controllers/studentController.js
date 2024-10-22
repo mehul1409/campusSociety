@@ -69,4 +69,84 @@ const studentLogin = async (req, res) => {
     }
 }
 
-module.exports = {studentRegister, studentLogin};
+const getAllStudents = async (req, res) => {
+    try {
+      const customHeader = req.headers['access-token'];
+      if (!customHeader) {
+        res.status(500).send('Headers not provided!');
+      }
+  
+      if (customHeader === process.env.accessToken) {
+        const students = await Student.find();
+        res.status(200).json(students);
+      } else {
+        res.status(500).send('Invalid Header value!');
+      }
+    } catch (error) {
+      console.error('Error fetching students:', error);
+      res.status(500).send('Server error');
+    }
+  }
+
+  const updateStudent = async (req, res) => {
+    const { name, email, password } = req.body;
+    const { studentId } = req.params;
+  
+    try {
+      const customHeader = req.headers['access-token'];
+      if (!customHeader) {
+        throw new Error('Header not provided!');
+      }
+      const student = await Student.findById(studentId);
+      if (!student) {
+        return res.status(404).json({ message: 'Student not found' });
+      }
+      if (customHeader === process.env.accessToken) {
+        if (name) {
+          student.name = name;
+        }
+        if (email) {
+          student.email = email;
+        }
+        if (password) {
+          student.password = await bcrypt.hash(password, 10);
+        }
+  
+        await student.save();
+  
+        return res.status(200).json({ message: 'student details updated successfully' });
+      } else {
+        throw new Error('Invalid header value!');
+      }
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'Server error' });
+    }
+  };
+  
+  const deleteStudent = async (req, res) => {
+    const { studentId } = req.params;
+    try {
+      const customHeader = req.headers['access-token'];
+      if (!customHeader) {
+        throw new Error('Header not provided!');
+      }
+      if (customHeader === process.env.accessToken) {
+        const student = await Student.findById(studentId);
+        if (!student) {
+          return res.status(404).json({ message: 'Student not found' });
+        }
+  
+        await Student.findByIdAndDelete(studentId);
+  
+        return res.status(200).json({ message: 'Student deleted successfully' });
+      } else {
+        throw new Error('Invalid header value!');
+      }
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'Server error' });
+    }
+  };
+
+module.exports = {studentRegister, studentLogin, getAllStudents, updateStudent, deleteStudent};
