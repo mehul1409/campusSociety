@@ -6,6 +6,7 @@ const { assignSpoc } = require('../controllers/adminController.js');
 const {getAllSpocs, updateSpoc, deleteSpoc} = require('../controllers/spocController.js');
 const { getAllCoordinators, updateCoordinator, deleteCoordinator } = require('../controllers/coordinatorController.js');
 const { getAllStudents, updateStudent, deleteStudent } = require('../controllers/studentController.js');
+const { getAllHubs, updateHub, deleteHub } = require('../controllers/hub.js');
 
 adminRouter.post('/addCollege', addCollege);
 adminRouter.post('/assignSpoc', assignSpoc);
@@ -21,6 +22,9 @@ adminRouter.delete('/:studentId/studentdelete',deleteStudent);
 adminRouter.get('/getAllColleges',getAllColleges);
 adminRouter.put('/:collegeId/collegeupdate',updateCollege);
 adminRouter.delete('/:collegeId/collegedelete',deleteCollege);
+adminRouter.get('/getAllHubs',getAllHubs);
+adminRouter.put('/:hubId/hubdelete', updateHub);
+adminRouter.delete('/:hubId/hubdelete', deleteHub);
 
 module.exports = adminRouter;
 

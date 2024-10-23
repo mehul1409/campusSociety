@@ -70,7 +70,7 @@ const adminLogin = async (req, res) => {
       httpOnly: true,
       maxAge: 3600000,
       sameSite: 'strict',
-      secure: true,
+      secure: process.env.NODE_ENV === 'production',
     });
 
     res.json({ message: 'Login successful', token });
