@@ -66,10 +66,10 @@ const adminLogin = async (req, res) => {
           { expiresIn: '1h' }
       );
 
-      res.cookie('adminToken', token, { 
-        httpOnly: true,
-        maxAge: 3600000,
-        sameSite: 'strict' });
+      res.cookie('adminToken', token,{ 
+          httpOnly: true,
+          maxAge: 3600000,
+         sameSite: 'strict' });
 
       res.json({ message: 'Login successful', token });
   } catch (error) {
