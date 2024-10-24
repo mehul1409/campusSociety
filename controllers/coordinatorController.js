@@ -92,7 +92,7 @@ const postEvent = async (req, res) => {
             secure: process.env.NODE_ENV === 'production',
         });
 
-        return res.status(200).json({ message: 'Login successful' });
+        return res.status(200).json({ message: 'Login successful' , token});
 
     } catch (error) {
         console.error(error);
