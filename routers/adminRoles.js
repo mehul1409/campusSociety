@@ -2,7 +2,7 @@ const express = require('express');
 const adminRouter = express.Router();
 
 const {addCollege, getAllColleges, updateCollege, deleteCollege} = require('../controllers/addCollege.js');
-const { assignSpoc } = require('../controllers/adminController.js');
+const { assignSpoc, getAllAdmins, updateAdmin, deleteAdmin } = require('../controllers/adminController.js');
 const {getAllSpocs, updateSpoc, deleteSpoc} = require('../controllers/spocController.js');
 const { getAllCoordinators, updateCoordinator, deleteCoordinator } = require('../controllers/coordinatorController.js');
 const { getAllStudents, updateStudent, deleteStudent } = require('../controllers/studentController.js');
@@ -25,6 +25,9 @@ adminRouter.delete('/:collegeId/collegedelete',deleteCollege);
 adminRouter.get('/getAllHubs',getAllHubs);
 adminRouter.put('/:hubId/hubdelete', updateHub);
 adminRouter.delete('/:hubId/hubdelete', deleteHub);
+adminRouter.get('/getAllAdmins',getAllAdmins);
+adminRouter.put('/:adminId/adminupdate', updateAdmin);
+adminRouter.delete('/:adminId/admindelete', deleteAdmin);
 
 module.exports = adminRouter;
 

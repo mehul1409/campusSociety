@@ -98,4 +98,84 @@ const adminRegister = async (req, res) => {
   }
 }
 
-module.exports = { assignSpoc, adminLogin, adminRegister };
+const getAllAdmins = async (req, res) => {
+  try {
+    const customHeader = req.headers['access-token'];
+    if (!customHeader) {
+      res.status(500).send('Headers not provided!');
+    }
+
+    if (customHeader === process.env.accessToken) {
+      const admins = await Admin.find();
+      res.status(200).json(admins);
+    } else {
+      res.status(500).send('Invalid Header value!');
+    }
+  } catch (error) {
+    console.error('Error fetching admins:', error);
+    res.status(500).send('Server error');
+  }
+}
+
+const updateAdmin = async (req, res) => {
+  const { name, email, password } = req.body;
+  const { adminId } = req.params;
+
+  try {
+    const customHeader = req.headers['access-token'];
+    if (!customHeader) {
+      throw new Error('Header not provided!');
+    }
+    const admin = await Admin.findById(adminId);
+    if (!admin) {
+      return res.status(404).json({ message: 'Admin not found' });
+    }
+    if (customHeader === process.env.accessToken) {
+      if (name) {
+        admin.name = name;
+      }
+      if (email) {
+        admin.email = email;
+      }
+      if (password) {
+        admin.password = await bcrypt.hash(password, 10);
+      }
+
+      await admin.save();
+
+      return res.status(200).json({ message: 'admin details updated successfully' });
+    } else {
+      throw new Error('Invalid header value!');
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
+const deleteAdmin = async (req, res) => {
+  const { adminId } = req.params;
+  try {
+    const customHeader = req.headers['access-token'];
+    if (!customHeader) {
+      throw new Error('Header not provided!');
+    }
+    if (customHeader === process.env.accessToken) {
+      const student = await Admin.findById(adminId);
+      if (!student) {
+        return res.status(404).json({ message: 'Student not found' });
+      }
+
+      await Admin.findByIdAndDelete(adminId);
+
+      return res.status(200).json({ message: 'Admin deleted successfully' });
+    } else {
+      throw new Error('Invalid header value!');
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
+module.exports = { assignSpoc, adminLogin, adminRegister, getAllAdmins, updateAdmin, deleteAdmin };
