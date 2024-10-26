@@ -23,7 +23,7 @@ adminRouter.get('/getAllColleges',getAllColleges);
 adminRouter.put('/:collegeId/collegeupdate',updateCollege);
 adminRouter.delete('/:collegeId/collegedelete',deleteCollege);
 adminRouter.get('/getAllHubs',getAllHubs);
-adminRouter.put('/:hubId/hubdelete', updateHub);
+adminRouter.put('/:hubId/hubupdate', updateHub);
 adminRouter.delete('/:hubId/hubdelete', deleteHub);
 adminRouter.get('/getAllAdmins',getAllAdmins);
 adminRouter.put('/:adminId/adminupdate', updateAdmin);
