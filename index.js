@@ -16,10 +16,13 @@ const router = express.Router();
 dotenv.config();
 dbConection();
 
-app.use(cors({
-    origin: 'https://campus-society-admin.vercel.app/',
-    credentials: true
-}));
+// app.use(cors({
+//     origin: 'https://campus-society-admin.vercel.app/',
+//     credentials: true
+// }));
+
+app.use(cors());
+
 app.use(cookieParser());
 app.use(express.json());
 
