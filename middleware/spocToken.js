@@ -1,9 +1,9 @@
 const jwt = require('jsonwebtoken');
 
 const verifySpocToken = (req, res, next) => {
-    const token = req.cookies.token;
+    // const token = req.cookies.token;
 
-    // const token = req.headers['spocauthorize'];
+    const token = req.headers['spocauthorize'];
     if (!token) {
         return res.status(401).json({ message: 'Authentication required' });
     }

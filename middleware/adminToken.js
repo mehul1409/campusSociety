@@ -1,9 +1,9 @@
 const jwt = require('jsonwebtoken');
 
 const authenticateAdmin = (req, res, next) => {
-    // const token = req.headers['adminauthorize'];
+    const token = req.headers['adminauthorize'];
 
-    const token = req.cookies.adminToken;
+    // const token = req.cookies.adminToken;
     
     if (!token) {
         return res.status(401).json({ message: 'Access Denied. No token provided.' });

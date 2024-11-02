@@ -1,9 +1,9 @@
 const jwt = require('jsonwebtoken');
 
 const verifyStudentToken = (req, res, next) => {
-    const token = req.cookies.token;
+    // const token = req.cookies.token;
 
-    // const token = req.headers['studentauthorize'];
+    const token = req.headers['studentauthorize'];
 
     if (!token) {
         return res.status(401).json({ message: 'Authentication required' });
