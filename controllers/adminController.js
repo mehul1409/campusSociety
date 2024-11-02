@@ -7,12 +7,11 @@ const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 
 const assignSpoc = async (req, res) => {
-
   const transporter = nodemailer.createTransport({
-    service: 'gmail', 
+    service: 'gmail',
     auth: {
-      user: process.env.EMAIL_USER, 
-      pass: process.env.EMAIL_PASS, 
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
     },
   });
 
@@ -51,18 +50,29 @@ const assignSpoc = async (req, res) => {
       text: `Hello ${name},\n\nYou have been assigned as the SPOC for the college "${college.collegeName}". Here are your login details:\n\nID: ${savedSpoc._id}\nPassword: ${generatedPassword}\n\nPlease log in at [Portal URL].\n\nBest regards,\n[Your Organization's Name]`,
     };
 
-    await transporter.sendMail(mailOptions);
+    // Try to send email and include status in the response
+    let emailStatus;
+    try {
+      const info = await transporter.sendMail(mailOptions);
+      emailStatus = `Email sent: ${info.response}`;
+    } catch (emailError) {
+      emailStatus = `Failed to send email: ${emailError.message}`;
+    }
 
+    // Send the final response with both SPOC assignment and email status
     return res.status(201).json({
       message: 'SPOC assigned successfully',
       spocId: savedSpoc._id,
       password: generatedPassword,
+      emailStatus: emailStatus, // Include email sending status here
     });
+
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: 'Server error' });
   }
 };
+
 
 const adminLogin = async (req, res) => {
   const { email, password } = req.body;
