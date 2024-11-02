@@ -1,15 +1,17 @@
 [+] - Add college
 [+] - Assign SPOC (Initially, when assigning, the SPOC will receive a generated password)
-[-] - Admin dashboard to manage colleges and SPOCs (Add and manage colleges and SPOCs.)
+[+] - Admin dashboard to manage colleges and SPOCs (Add and manage colleges and SPOCs.)
 [+] - Sign-in page for SPOCs and coordinators
 [+] - SPOCs can create channels for hubs.
 [-] - System to send an email with the password to SPOCs and Coordinators.
 [+] - change password for SPOCs and Coordinators
 [+] - students signup/signin
 [-] - student password change route
-[-] - delete college api
+[+] - delete college api
 [-] - update postEvent(workflow of that api)
 [-] - update another collections when spoc or coordiator gets delete
 [+] - admin middleware
 [*] - think how to use req.something from middlewares
-
+[-] - later we have to add verifySpocToken router for createhub
+[-] - coordinator page in admin dashboard
+[-] - Have to integrate multer/cloudinary for images and videos

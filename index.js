@@ -39,6 +39,9 @@ app.use('/spoc',spocRouter);
 app.use('/coordinator',coordinatorRouter);
 app.use('/student',studentRouter);
 
+console.log('Email User:', process.env.EMAIL_USER);
+console.log('Email Pass:', process.env.EMAIL_PASS);
+
 app.listen(process.env.PORT,(error)=>{
     if(error){
         console.log(`Error starting the server: ${error}`);

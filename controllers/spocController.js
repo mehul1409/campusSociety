@@ -5,6 +5,15 @@ const Spoc = require('../models/spoc.js');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail', 
+  auth: {
+    user: process.env.EMAIL_USER, 
+    pass: process.env.EMAIL_PASS, 
+  },
+});
 
 const changePassword = async (req, res) => {
   const { email, currentPassword, newPassword } = req.body;
@@ -65,12 +74,22 @@ const createHub = async (req, res) => {
     college.hubs.push(savedHub._id);
     await college.save();
 
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: coordinatorDetails.email,
+      subject: 'Your Hub Portal Login Details',
+      text: `Hello ${coordinatorDetails.name},\n\nYou have been assigned as the coordinator for the hub "${hubName}". Here are your login details:\n\nID: ${savedCoordinator._id}\nPassword: ${generatedPassword}\n\nPlease log in at [Portal URL].\n\nBest regards,\n[Your Organization's Name]`,
+    };
+
+    await transporter.sendMail(mailOptions);
+
     return res.status(201).json({
-      message: 'Hub created successfully',
+      message: 'Hub created successfully and email also sent successfully!',
       hubId: savedHub._id,
       coordinatorId: savedCoordinator._id,
       password: generatedPassword,
     });
+    
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: 'Server error' });
