@@ -6,6 +6,15 @@ const Admin = require('../models/admin.js');
 const jwt = require('jsonwebtoken');
 
 const assignSpoc = async (req, res) => {
+
+  const transporter = nodemailer.createTransport({
+    service: 'gmail', 
+    auth: {
+      user: process.env.EMAIL_USER, 
+      pass: process.env.EMAIL_PASS, 
+    },
+  });
+
   const { collegeId, name, email } = req.body;
 
   try {
@@ -34,10 +43,19 @@ const assignSpoc = async (req, res) => {
     college.spocId = savedSpoc._id;
     await college.save();
 
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'Your SPOC Login Details',
+      text: `Hello ${name},\n\nYou have been assigned as the SPOC for the college "${college.collegeName}". Here are your login details:\n\nID: ${savedSpoc._id}\nPassword: ${generatedPassword}\n\nPlease log in at [Portal URL].\n\nBest regards,\n[Your Organization's Name]`,
+    };
+
+    await transporter.sendMail(mailOptions);
+
     return res.status(201).json({
       message: 'SPOC assigned successfully',
       spocId: savedSpoc._id,
-      passwprd: generatedPassword,
+      password: generatedPassword,
     });
   } catch (error) {
     console.error(error);

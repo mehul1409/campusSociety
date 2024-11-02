@@ -7,14 +7,6 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail', 
-  auth: {
-    user: process.env.EMAIL_USER, 
-    pass: process.env.EMAIL_PASS, 
-  },
-});
-
 const changePassword = async (req, res) => {
   const { email, currentPassword, newPassword } = req.body;
 
@@ -42,6 +34,15 @@ const changePassword = async (req, res) => {
 };
 
 const createHub = async (req, res) => {
+  
+  const transporter = nodemailer.createTransport({
+    service: 'gmail', 
+    auth: {
+      user: process.env.EMAIL_USER, 
+      pass: process.env.EMAIL_PASS, 
+    },
+  });
+
   const { collegeId, hubName, coordinatorDetails } = req.body;
 
   //Coordinator Details : name, email
