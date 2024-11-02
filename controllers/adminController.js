@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const Admin = require('../models/admin.js');
 const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
 
 const assignSpoc = async (req, res) => {
 
