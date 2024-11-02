@@ -21,7 +21,22 @@ dbConection();
 //     credentials: true
 // }));
 
-app.use(cors());
+const allowedOrigins = [
+    'http://localhost:5173',  
+    'https://campus-society-admin.vercel.app'  // production frontend
+  ];
+
+  app.use(cors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin, like mobile apps or curl requests
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true,
+  }));
 
 app.use(cookieParser());
 app.use(express.json());
