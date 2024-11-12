@@ -21,23 +21,23 @@ CampusSociety is a college hub management system designed to facilitate communic
 # Server Port
 PORT=8003
 
-# MongoDB connection string for development environment
+### MongoDB connection string for development environment
 MONGO_URL=mongodb://localhost:27017/campusSociety
 
-# (Optional) MongoDB Atlas connection string for cloud deployments
-# Uncomment this line and comment the above line if deploying to MongoDB Atlas
-# MONGO_URL=mongodb+srv://mehulbansalswm1234:rnRhtwMOUtxOxtZg@cluster0.2pmql.mongodb.net/campusSociety?retryWrites=true&w=majority&appName=Cluster0
+### (Optional) MongoDB Atlas connection string for cloud deployments
+### Uncomment this line and comment the above line if deploying to MongoDB Atlas
+#### MONGO_URL=mongodb+srv://mehulbansalswm1234:{password}@cluster0.2pmql.mongodb.net/campusSociety?retryWrites=true&w=majority&appName=Cluster0
 
-# JWT Secret Key
+## JWT Secret Key
 JWT_SECRET="mehulbansal"
 
-# Access Token (ensure this is securely generated and used in production)
+### Access Token (ensure this is securely generated and used in production)
 accessToken="tcZALrHkfh0fSe5WQkCuTtHGJbvn4VI1"
 
-# Node Environment (development, production)
+### Node Environment (development, production)
 NODE_ENV="development"
 
-# Email Configuration (for notifications or verifications)
+### Email Configuration (for notifications or verifications)
 EMAIL_USER=""
 EMAIL_PASS=""
 
