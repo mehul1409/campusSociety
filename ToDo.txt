@@ -15,4 +15,4 @@
 [-] - later we have to add verifySpocToken router for createhub
 [-] - coordinator page in admin dashboard
 [-] - Have to integrate multer/cloudinary for images and videos
-[-] - email cannot sent from admin portal 
+[+] - email cannot sent from admin portal 

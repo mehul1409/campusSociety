@@ -10,7 +10,7 @@ spocRouter.post('/changePassword',verifySpocToken,changePassword);
 // later we have to add verifySpocToken router for createhub
 spocRouter.post('/createHub',createHub);
 
-spocRouter.post('/login',spocLogin)
+spocRouter.post('/login',spocLogin);
 spocRouter.post('/logout', (req, res) => {
     res.clearCookie('token');
     res.status(200).json({ message: 'Logout successful' });

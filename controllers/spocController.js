@@ -99,7 +99,6 @@ const createHub = async (req, res) => {
 
 const spocLogin = async (req, res) => {
   const { email, password } = req.body;
-
   try {
     const spoc = await Spoc.findOne({ email });
     if (!spoc) {
@@ -107,6 +106,7 @@ const spocLogin = async (req, res) => {
     }
 
     const isMatch = await bcrypt.compare(password, spoc.password);
+    
     if (!isMatch) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
