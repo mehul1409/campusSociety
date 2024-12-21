@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const Student = require('../models/student.js');
 const College = require('../models/college.js');
 const Hub = require('../models/hub.js');
+const sendEmail = require('../helpers/sendEmail.js');
 
 const studentRegister = async (req, res) => {
     const { name, email, password, collegeId } = req.body;
@@ -157,4 +158,78 @@ const getAllStudents = async (req, res) => {
     }
   };
 
-module.exports = {studentRegister, studentLogin, getAllStudents, updateStudent, deleteStudent};
+  const changePassword = async (req, res) => {
+    const { email, currentPassword, newPassword } = req.body;
+
+    try {
+        const student = await Student.findOne({email});
+        if (!student) {
+            return res.status(404).json({ message: 'Student not found' });
+        }
+
+        const isMatch = await bcrypt.compare(currentPassword, student.password);
+        if (!isMatch) {
+            return res.status(400).json({ message: 'Incorrect current password' });
+        }
+
+        const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+        student.password = hashedNewPassword;
+        await student.save();
+
+        return res.status(200).json({ message: 'Password changed successfully' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Server error' });
+    }
+};
+
+const requestPasswordReset = async (req, res) => {
+  const { email, role } = req.body;
+  
+  try {
+    const user = await Student.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+    const resetLink = `http://localhost:5173/reset-password?token=${token}&role=${role}`;
+
+    await sendEmail(user.email, 'Password Reset Request', `Click on the link to reset your password: ${resetLink}`);
+
+    return res.status(200).json({ message: 'Password reset link sent to your email' });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Something went wrong. Please try again later' });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  const { token, newPassword } = req.body;
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (!decoded) {
+      return res.status(400).json({ message: 'Invalid or expired token' });
+    }
+
+    const user = await Student.findById(decoded.userId);
+    if (!user) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    user.password = hashedPassword;
+    await user.save();
+
+    return res.status(200).json({ message: 'Password updated successfully' });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Something went wrong. Please try again later' });
+  }
+};
+
+module.exports = {studentRegister, studentLogin, getAllStudents, updateStudent, deleteStudent, changePassword, requestPasswordReset, resetPassword};

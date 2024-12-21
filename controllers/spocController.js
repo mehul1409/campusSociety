@@ -6,6 +6,7 @@ const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
+const sendEmail = require('../helpers/sendEmail.js');
 
 const changePassword = async (req, res) => {
   const { email, currentPassword, newPassword } = req.body;
@@ -212,4 +213,52 @@ const deleteSpoc = async (req, res) => {
   }
 };
 
-module.exports = { changePassword, createHub, spocLogin, getAllSpocs, updateSpoc, deleteSpoc };
+const requestPasswordReset = async (req, res) => {
+  const { email, role } = req.body;
+  
+  try {
+    const user = await Spoc.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: 'Spoc not found' });
+    }
+
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+    const resetLink = `http://localhost:5173/reset-password?token=${token}&role=${role}`;
+
+    await sendEmail(user.email, 'Password Reset Request', `Click on the link to reset your password: ${resetLink}`);
+
+    return res.status(200).json({ message: 'Password reset link sent to your email' });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Something went wrong. Please try again later' });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  const { token, newPassword } = req.body;
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (!decoded) {
+      return res.status(400).json({ message: 'Invalid or expired token' });
+    }
+
+    const user = await Spoc.findById(decoded.userId);
+    if (!user) {
+      return res.status(404).json({ message: 'Spoc not found' });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    user.password = hashedPassword;
+    await user.save();
+
+    return res.status(200).json({ message: 'Password updated successfully' });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Something went wrong. Please try again later' });
+  }
+};
+
+module.exports = { changePassword, createHub, spocLogin, getAllSpocs, updateSpoc, deleteSpoc, requestPasswordReset, resetPassword };

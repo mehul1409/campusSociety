@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Hub = require('../models/hub.js');
 const Event = require('../models/event.js');
+const sendEmail = require('../helpers/sendEmail.js');
 
 const changePassword = async (req, res) => {
     const { email, currentPassword, newPassword } = req.body;
@@ -180,4 +181,54 @@ const deleteCoordinator = async (req, res) => {
   }
 };
 
-module.exports = {changePassword, postEvent, coordinatorLogin, getAllCoordinators, updateCoordinator, deleteCoordinator};
+const requestPasswordReset = async (req, res) => {
+  const { email, role } = req.body;
+
+  console.log(email, role);
+  
+  try {
+    const user = await Coordinator.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: 'Coordinator not found' });
+    }
+
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+    const resetLink = `http://localhost:5173/reset-password?token=${token}&role=${role}`;
+
+    await sendEmail(user.email, 'Password Reset Request', `Click on the link to reset your password: ${resetLink}`);
+
+    return res.status(200).json({ message: 'Password reset link sent to your email' });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Something went wrong. Please try again later' });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  const { token, newPassword } = req.body;
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (!decoded) {
+      return res.status(400).json({ message: 'Invalid or expired token' });
+    }
+
+    const user = await Coordinator.findById(decoded.userId);
+    if (!user) {
+      return res.status(404).json({ message: 'Coordinator not found' });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    user.password = hashedPassword;
+    await user.save();
+
+    return res.status(200).json({ message: 'Password updated successfully' });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Something went wrong. Please try again later' });
+  }
+};
+
+module.exports = {changePassword, postEvent, coordinatorLogin, getAllCoordinators, updateCoordinator, deleteCoordinator,requestPasswordReset, resetPassword};
