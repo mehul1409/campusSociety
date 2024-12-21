@@ -13,6 +13,11 @@ const studentRegister = async (req, res) => {
             return res.status(404).json({ message: 'College not found' });
         }
 
+        const studentExists = await Student.findOne({email});
+        if (studentExists) {
+          return res.json({ message: 'Email ID already exists' });
+        }
+
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const newStudent = new Student({
@@ -46,13 +51,13 @@ const studentLogin = async (req, res) => {
         }
 
         const JWT_SECRET = process.env.JWT_SECRET
-        const token = jwt.sign({ studentId: student._id, collegeId: student.collegeId }, JWT_SECRET, {
+        const token = jwt.sign({ studentId: student._id, collegeId: student.collegeId, role:'student'}, JWT_SECRET, {
             expiresIn: '1h'
         });
 
         const hubs = await Hub.find({ collegeId: student.collegeId });
 
-        res.cookie('token', token, {
+        res.cookie('studenttoken', token, {
             httpOnly: true,
             maxAge: 3600000, 
             sameSite: 'strict',
@@ -62,7 +67,8 @@ const studentLogin = async (req, res) => {
         return res.status(200).json({
             message: 'Login successful',
             hubs,
-            token
+            token,
+            role:'student'
         });
 
     } catch (error) {

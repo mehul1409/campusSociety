@@ -1,9 +1,14 @@
 const jwt = require('jsonwebtoken');
 
 const verifyCoordinatorToken = (req, res, next) => {
-    // const token = req.cookies.token;
 
-    const token = req.headers['coordinatorauthorize'];
+    let token;
+
+    if (process.env.NODE_ENV === 'development') {
+        token = req.cookies.coordinatortoken;
+    } else {
+        token = req.headers['coordinatorauthorize'];
+    }
 
     if (!token) {
         return res.status(401).json({ message: 'Authentication required' });

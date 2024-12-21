@@ -81,18 +81,18 @@ const postEvent = async (req, res) => {
         }
 
         const JWT_SECRET = process.env.JWT_SECRET
-        const token = jwt.sign({ coordinatorId: coordinator._id, email: coordinator.email }, JWT_SECRET, {
+        const token = jwt.sign({ coordinatorId: coordinator._id, email: coordinator.email, role:'coordinator' }, JWT_SECRET, {
             expiresIn: '1h'
         });
 
-        res.cookie('token', token, {
+        res.cookie('coordinatortoken', token, {
             httpOnly: true,
             maxAge: 3600000, 
             sameSite: 'strict',
             secure: process.env.NODE_ENV === 'production',
         });
 
-        return res.status(200).json({ message: 'Login successful' , token});
+        return res.status(200).json({ message: 'Login successful' , token, role: 'coordinator' });
 
     } catch (error) {
         console.error(error);
