@@ -10,6 +10,7 @@ const studentRouter = require('./routers/studentRouter.js');
 const { adminLogin, adminRegister } = require('./controllers/adminController.js');
 const authenticateAdmin = require('./middleware/adminToken.js');
 const { getAllColleges } = require('./controllers/addCollege.js');
+const {getAllHubs,updateHub,deleteHub} = require('./controllers/hub.js')
 
 const app = express();
 const router = express.Router();
@@ -50,6 +51,9 @@ router.post('/adminLogout', (req, res) => {
     res.status(200).json({ message: 'Logout successful' });
 });
 router.get('/getAllColleges', getAllColleges);
+router.get('/getAllHubs',getAllHubs);
+router.put('/:hubId/hubupdate', updateHub);
+router.delete('/:hubId/hubdelete', deleteHub);
 
 app.use('/api', router);
 app.use('/admin', authenticateAdmin, adminrouter);
