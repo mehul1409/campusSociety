@@ -5,100 +5,168 @@ const Hub = require('../models/hub.js');
 const Event = require('../models/event.js');
 const sendEmail = require('../helpers/sendEmail.js');
 
-const changePassword = async (req, res) => {
-    const { email, currentPassword, newPassword } = req.body;
+const getEventsByCoordinator = async (req, res) => {
+  const { coordinatorId } = req.body;
+  try {
+    const events = await Event.find({ postedBy: coordinatorId });
 
-    try {
-        const coordinator = await Coordinator.findOne({email});
-        if (!coordinator) {
-            return res.status(404).json({ message: 'Coordinator not found' });
-        }
-
-        const isMatch = await bcrypt.compare(currentPassword, coordinator.password);
-        if (!isMatch) {
-            return res.status(400).json({ message: 'Incorrect current password' });
-        }
-
-        const hashedNewPassword = await bcrypt.hash(newPassword, 10);
-
-        coordinator.password = hashedNewPassword;
-        await coordinator.save();
-
-        return res.status(200).json({ message: 'Password changed successfully' });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ message: 'Server error' });
+    if (!events || events.length === 0) {
+      return res.status(404).json({ message: 'No events found for this coordinator' });
     }
+
+    return res.status(200).json(events);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Server error while fetching events' });
+  }
+};
+
+const getEventById = async (req, res) => {
+  const { eventId } = req.params;
+  try {
+    const event = await Event.findById(eventId);
+    if (!event) {
+      return res.status(404).json({ message: 'Event not found' });
+    }
+    res.status(200).json({ event });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error while fetching event' });
+  }
+};
+
+
+const editEvent = async (req, res) => {
+  const { eventId, eventDetails } = req.body;
+
+  try {
+    const event = await Event.findById(eventId);
+
+    if (!event) {
+      return res.status(404).json({ message: 'Event not found' });
+    }
+
+    event.eventDetails.title = eventDetails.title || event.eventDetails.title;
+    event.eventDetails.description = eventDetails.description || event.eventDetails.description;
+    event.eventDetails.date = eventDetails.date || event.eventDetails.date;
+
+    const updatedEvent = await event.save();
+
+    return res.status(200).json({ message: 'Event updated successfully', updatedEvent });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Server error while updating event' });
+  }
+};
+
+const deleteEvent = async (req, res) => {
+  const { eventId } = req.body;
+
+  try {
+    const event = await Event.findByIdAndDelete(eventId);
+
+    if (!event) {
+      return res.status(404).json({ message: 'Event not found' });
+    }
+
+    return res.status(200).json({ message: 'Event deleted successfully' });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Server error while deleting event' });
+  }
+};
+
+const changePassword = async (req, res) => {
+  const { email, currentPassword, newPassword } = req.body;
+
+  try {
+    const coordinator = await Coordinator.findOne({ email });
+    if (!coordinator) {
+      return res.status(404).json({ message: 'Coordinator not found' });
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, coordinator.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Incorrect current password' });
+    }
+
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+    coordinator.password = hashedNewPassword;
+    await coordinator.save();
+
+    return res.status(200).json({ message: 'Password changed successfully' });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Server error' });
+  }
 };
 
 const postEvent = async (req, res) => {
-    const { coordinatorId, eventDetails } = req.body;
-    
-    try {
-      const hub = await Hub.findOne({coordinatorId});
-      if (!hub) {
-        return res.status(404).json({ message: 'Hub not found' });
-      }
-  
-      const newEvent = new Event({
-        hubId:hub._id,
-        eventDetails: {
-          title: eventDetails.title,
-          description: eventDetails.description,
-          date: eventDetails.date,
-          image: eventDetails.image || null
-        },
-        postedBy: req.coordinatorId,
-        timestamp: new Date()
-      });
-  
-      const savedEvent = await newEvent.save();
-  
-      hub.events.push(savedEvent._id);
-      await hub.save();
-  
-      return res.status(201).json({
-        message: 'Announcement posted successfully',
-        eventId: savedEvent._id
-      });
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ message: 'Server error' });
+  const { coordinatorId, eventDetails } = req.body;
+
+  try {
+    const hub = await Hub.findOne({ coordinatorId });
+    if (!hub) {
+      return res.status(404).json({ message: 'Hub not found' });
     }
-  };
 
-  const coordinatorLogin = async (req, res) => {
-    const { email, password } = req.body;
+    const newEvent = new Event({
+      hubId: hub._id,
+      eventDetails: {
+        title: eventDetails.title,
+        description: eventDetails.description,
+        date: eventDetails.date,
+      },
+      postedBy: req.coordinatorId,
+      timestamp: new Date()
+    });
 
-    try {
-        const coordinator = await Coordinator.findOne({ email });
-        if (!coordinator) {
-            return res.status(401).json({ message: 'Invalid credentials' });
-        }
+    const savedEvent = await newEvent.save();
 
-        const isMatch = await bcrypt.compare(password, coordinator.password);
-        if (!isMatch) {
-            return res.status(401).json({ message: 'Invalid credentials' });
-        }
+    hub.events.push(savedEvent._id);
+    await hub.save();
 
-        const JWT_SECRET = process.env.JWT_SECRET
-        const token = jwt.sign({ coordinatorId: coordinator._id, email: coordinator.email, role:'coordinator' }, JWT_SECRET, {
-            expiresIn: '1h'
-        });
+    return res.status(201).json({
+      message: 'Announcement posted successfully',
+      eventId: savedEvent._id
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
 
-        res.cookie('coordinatortoken', token, {
-            httpOnly: true,
-            maxAge: 3600000, 
-            sameSite: 'strict',
-            secure: process.env.NODE_ENV === 'production',
-        });
-
-        return res.status(200).json({ message: 'Login successful' , token, role: 'coordinator' });
-
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error' });
+const coordinatorLogin = async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const coordinator = await Coordinator.findOne({ email }).populate('collegeId').populate('hubId');
+    if (!coordinator) {
+      return res.status(401).json({ message: 'Invalid credentials' });
     }
+
+    const isMatch = await bcrypt.compare(password, coordinator.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    const JWT_SECRET = process.env.JWT_SECRET
+    const token = jwt.sign({ coordinatorId: coordinator._id, email: coordinator.email, role: 'coordinator' }, JWT_SECRET, {
+      expiresIn: '1h'
+    });
+
+    res.cookie('coordinatortoken', token, {
+      httpOnly: true,
+      maxAge: 3600000,
+      sameSite: 'strict',
+      secure: process.env.NODE_ENV === 'production',
+    });
+
+    return res.status(200).json({ message: 'Login successful', token, coordinator, role: 'coordinator' });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
 };
 
 const getAllCoordinators = async (req, res) => {
@@ -185,7 +253,7 @@ const requestPasswordReset = async (req, res) => {
   const { email, role } = req.body;
 
   console.log(email, role);
-  
+
   try {
     const user = await Coordinator.findOne({ email });
     if (!user) {
@@ -231,4 +299,5 @@ const resetPassword = async (req, res) => {
   }
 };
 
-module.exports = {changePassword, postEvent, coordinatorLogin, getAllCoordinators, updateCoordinator, deleteCoordinator,requestPasswordReset, resetPassword};
+module.exports = { changePassword, postEvent, coordinatorLogin, getAllCoordinators, updateCoordinator, deleteCoordinator, requestPasswordReset, resetPassword, getEventsByCoordinator, editEvent, deleteEvent, getEventById };
+

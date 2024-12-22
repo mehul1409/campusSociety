@@ -61,6 +61,8 @@ const createHub = async (req, res) => {
       name: coordinatorDetails.name,
       email: coordinatorDetails.email,
       password: hashedPassword,
+      collegeId,
+      hubId: null,
     });
 
     const savedCoordinator = await newCoordinator.save();
@@ -75,6 +77,9 @@ const createHub = async (req, res) => {
 
     college.hubs.push(savedHub._id);
     await college.save();
+
+    savedCoordinator.hubId = savedHub._id;
+    await savedCoordinator.save();
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
@@ -261,4 +266,25 @@ const resetPassword = async (req, res) => {
   }
 };
 
-module.exports = { changePassword, createHub, spocLogin, getAllSpocs, updateSpoc, deleteSpoc, requestPasswordReset, resetPassword };
+const getSpocById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({ message: "SPOC ID is required" });
+    }
+
+    const spoc = await Spoc.findById(id);
+
+    if (!spoc) {
+      return res.status(404).json({ message: "SPOC not found" });
+    }
+
+    res.status(200).json(spoc);
+  } catch (error) {
+    console.error("Error fetching SPOC:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+
+module.exports = { changePassword, createHub, spocLogin, getAllSpocs, updateSpoc, deleteSpoc, requestPasswordReset, resetPassword, getSpocById };

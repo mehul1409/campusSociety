@@ -4,7 +4,7 @@ const authenticateAdmin = (req, res, next) => {
     
     let token;
 
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV !== 'development') {
         token = req.cookies.adminToken;
     } else {
         token = req.headers['adminauthorize'];

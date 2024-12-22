@@ -14,6 +14,15 @@ const coordinatorSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    collegeId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'College',
+        required: true
+    },
+    hubId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Hub'
+    },
 });
 
 const coordinator = mongoose.model('Coordinator', coordinatorSchema);

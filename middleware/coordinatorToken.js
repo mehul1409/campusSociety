@@ -1,10 +1,9 @@
 const jwt = require('jsonwebtoken');
 
 const verifyCoordinatorToken = (req, res, next) => {
+    var token;
 
-    let token;
-
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV !== 'development') {
         token = req.cookies.coordinatortoken;
     } else {
         token = req.headers['coordinatorauthorize'];
@@ -15,13 +14,11 @@ const verifyCoordinatorToken = (req, res, next) => {
     }
 
     try {
-        // Verify the token
         const JWT_SECRET = process.env.JWT_SECRET
         const decoded = jwt.verify(token, JWT_SECRET);
 
-        // Attach decoded info (like coordinatorId) to the request object for further use
         req.coordinatorId = decoded.coordinatorId;
-        next(); // Proceed to the next middleware or route handler
+        next();
     } catch (error) {
         return res.status(401).json({ message: 'Invalid or expired token' });
     }

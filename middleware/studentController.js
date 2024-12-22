@@ -2,9 +2,9 @@ const jwt = require('jsonwebtoken');
 
 const verifyStudentToken = (req, res, next) => {
 
-    let token;
+    var token;
 
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV !== 'development') {
         token = req.cookies.studenttoken;
     } else {
         token = req.headers['studentauthorize'];

@@ -19,9 +19,10 @@ dotenv.config();
 dbConection();
 
 // app.use(cors({
-//     origin: 'https://campus-society-admin.vercel.app/',
-//     credentials: true
-// }));
+//     origin: 'http://localhost:5173',
+//     methods: ['GET', 'POST', 'PUT', 'DELETE'],
+//     allowedHeaders: ['Content-Type', 'Authorization', 'coordinatorauthorize'],
+//   }));
 
 // const allowedOrigins = [
 //     'http://localhost:5173',  
@@ -68,3 +69,4 @@ app.listen(process.env.PORT, (error) => {
         console.log(`Server is started at PORT: ${process.env.PORT}`);
     }
 });
+
