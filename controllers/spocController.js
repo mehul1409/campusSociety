@@ -124,7 +124,7 @@ const spocLogin = async (req, res) => {
       secure: process.env.NODE_ENV === 'production',
     });
 
-    return res.status(200).json({ message: 'Login successful', token, role: 'spoc' });
+    return res.status(200).json({ message: 'Login successful', token, spoc, role: 'spoc' });
 
   } catch (error) {
     console.error(error);

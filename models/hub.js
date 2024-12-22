@@ -3,7 +3,8 @@ const mongoose = require('mongoose');
 const hubSchema = new mongoose.Schema({
     hubName: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
     collegeId: {
         type: mongoose.Schema.Types.ObjectId,
