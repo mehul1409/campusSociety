@@ -4,7 +4,7 @@ const verifySpocToken = (req, res, next) => {
 
     let token;
     
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV !== 'development') {
         token = req.cookies.spoctoken;
     } else {
         token = req.headers['spocauthorize'];

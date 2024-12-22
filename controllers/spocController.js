@@ -61,6 +61,8 @@ const createHub = async (req, res) => {
       name: coordinatorDetails.name,
       email: coordinatorDetails.email,
       password: hashedPassword,
+      collegeId,
+      hubId: null,
     });
 
     const savedCoordinator = await newCoordinator.save();
@@ -75,6 +77,9 @@ const createHub = async (req, res) => {
 
     college.hubs.push(savedHub._id);
     await college.save();
+
+    savedCoordinator.hubId = savedHub._id;
+    await savedCoordinator.save();
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
