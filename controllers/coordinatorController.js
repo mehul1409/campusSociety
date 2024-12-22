@@ -138,7 +138,6 @@ const postEvent = async (req, res) => {
 
 const coordinatorLogin = async (req, res) => {
   const { email, password } = req.body;
-
   try {
     const coordinator = await Coordinator.findOne({ email }).populate('collegeId').populate('hubId');
     if (!coordinator) {
