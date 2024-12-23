@@ -85,7 +85,7 @@ const createHub = async (req, res) => {
       from: process.env.EMAIL_USER,
       to: coordinatorDetails.email,
       subject: 'Your Hub Portal Login Details',
-      text: `Hello ${coordinatorDetails.name},\n\nYou have been assigned as the coordinator for the hub "${hubName}". Here are your login details:\n\nID: ${savedCoordinator._id}\nPassword: ${generatedPassword}\n\nPlease log in at [Portal URL].\n\nBest regards,\n[Your Organization's Name]`,
+      text: `Hello ${coordinatorDetails.name},\n\nYou have been assigned as the coordinator for the hub "${hubName}". Here are your login details:\n\nEMAIL: ${coordinatorDetails.email}\nPassword: ${generatedPassword}\n\nPlease log in at https://campussociety.vercel.app/\n\nBest regards,\n[Team Campus Society]`,
     };
 
     await transporter.sendMail(mailOptions);
