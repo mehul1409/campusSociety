@@ -16,3 +16,7 @@
 [-] - coordinator page in admin dashboard
 [-] - Have to integrate multer/cloudinary for images and videos
 [+] - email cannot sent from admin portal 
+[-] - same name hubs create ho rahai hai
+[-] - have to handle all the delete api's
+
+

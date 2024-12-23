@@ -106,7 +106,7 @@ const createHub = async (req, res) => {
 const spocLogin = async (req, res) => {
   const { email, password } = req.body;
   try {
-    const spoc = await Spoc.findOne({ email });
+    const spoc = await Spoc.findOne({ email }).populate('collegeId');
     if (!spoc) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
