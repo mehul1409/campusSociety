@@ -1,6 +1,8 @@
 const Hub = require('../models/hub');
 const College = require('../models/college')
 const Coordinator = require('../models/coordinator')
+const NodeCache = require('node-cache');
+const nodecache = new NodeCache();
 
 const getAllHubs = async (req, res) => {
   try {
@@ -11,7 +13,13 @@ const getAllHubs = async (req, res) => {
     }
 
     if (customHeader === process.env.accessToken) {
-      const hubs = await Hub.find().populate('collegeId').populate('coordinatorId').populate('events');
+      let hubs;
+      if(nodecache.has('hubs')){
+        hubs = JSON.parse(nodecache.get('hubs'));
+      }else{
+        hubs = await Hub.find().populate('collegeId').populate('coordinatorId').populate('events');
+        nodecache.set('hubs',JSON.stringify(hubs));
+      }
       res.status(200).json(hubs);
     } else {
       return res.status(403).json({ message: 'Unauthorized access!' });

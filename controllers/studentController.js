@@ -68,7 +68,7 @@ const studentLogin = async (req, res) => {
     return res.status(200).json({
       student,
       message: 'Login successful',
-      hubs,
+      // hubs,
       token,
       role: 'student'
     });
