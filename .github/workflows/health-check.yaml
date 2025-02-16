@@ -2,7 +2,7 @@ name: Keep Render Alive
 
 on:
   schedule:
-    - cron: '*/1* * * *'  # Runs every 3 minutes
+    - cron: '*/1 * * * *'  # Runs every 3 minutes
   workflow_dispatch: # Allows manual trigger
 
 jobs:
