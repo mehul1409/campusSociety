@@ -23,6 +23,18 @@ const eventSchema = new mongoose.Schema({
             type:String,
         }
     },
+    media: [
+        {
+            name: {
+                type: String,
+                required: true
+            },
+            link: {
+                type: String,
+                required: true
+            }
+        }
+    ],
     postedBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Coordinator',
@@ -31,7 +43,6 @@ const eventSchema = new mongoose.Schema({
     timestamp: { type: Date, default: Date.now }
 });
 
-const event = mongoose.model('Event', eventSchema);
+const Event = mongoose.model('Event', eventSchema);
 
-module.exports = event;
-
+module.exports = Event;

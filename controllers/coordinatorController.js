@@ -37,11 +37,12 @@ const getEventById = async (req, res) => {
 
 
 const editEvent = async (req, res) => {
-  const { eventId, eventDetails } = req.body;
+  const { eventId, eventDetails, media } = req.body;
+
+  console.log(eventDetails)
 
   try {
     const event = await Event.findById(eventId);
-
     if (!event) {
       return res.status(404).json({ message: 'Event not found' });
     }
@@ -49,6 +50,10 @@ const editEvent = async (req, res) => {
     event.eventDetails.title = eventDetails.title || event.eventDetails.title;
     event.eventDetails.description = eventDetails.description || event.eventDetails.description;
     event.eventDetails.date = eventDetails.date || event.eventDetails.date;
+
+    if (media) {
+      event.media = media;
+    }
 
     const updatedEvent = await event.save();
 
@@ -117,6 +122,17 @@ const postEvent = async (req, res) => {
 
     const result = await cloudinary.uploader.upload(req.file.path);
 
+    let media = [];
+    if (formData.eventLinks) {
+      try {
+        media = typeof formData.eventLinks === "string" 
+          ? JSON.parse(formData.eventLinks) 
+          : formData.eventLinks;
+      } catch (error) {
+        return res.status(400).json({ message: "Invalid eventLinks format" });
+      }
+    }
+
     const hub = await Hub.findOne({ coordinatorId });
     if (!hub) {
       return res.status(404).json({ message: 'Hub not found' });
@@ -130,6 +146,7 @@ const postEvent = async (req, res) => {
         date: date,
         photo: result.secure_url,
       },
+      media,
       postedBy: req.coordinatorId,
       timestamp: new Date()
     });
@@ -140,7 +157,7 @@ const postEvent = async (req, res) => {
     await hub.save();
 
     return res.status(201).json({
-      message: 'Announcement posted successfully',
+      message: 'Event posted successfully',
       eventId: savedEvent._id
     });
   } catch (error) {
