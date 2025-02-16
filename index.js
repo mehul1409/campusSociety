@@ -47,6 +47,10 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use("/health-check", (req, res) => {
+    res.status(200).json({ message: "Healthy Server" });
+  });
+
 router.post('/adminLogin', adminLogin);
 router.post('/adminRegister', authenticateAdmin, adminRegister);
 router.post('/adminLogout', (req, res) => {
