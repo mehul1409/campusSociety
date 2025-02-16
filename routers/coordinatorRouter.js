@@ -1,6 +1,6 @@
 const express = require('express');
 const coordinatorRouter = express.Router();
-const upload = require('../config/multer.js')
+const { upload } = require('../services/uploadService.js');
 
 const {changePassword,postEvent, coordinatorLogin, requestPasswordReset, resetPassword, getEventsByCoordinator, editEvent, deleteEvent, getEventById} = require('../controllers/coordinatorController.js');
 const verifyCoordinatorToken = require('../middleware/coordinatorToken.js');

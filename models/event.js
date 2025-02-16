@@ -20,7 +20,7 @@ const eventSchema = new mongoose.Schema({
             required: true
         },
         photo:{
-            type:Buffer,
+            type:String,
         }
     },
     postedBy: {

@@ -45,6 +45,7 @@ app.use(cors());
 
 app.use(cookieParser());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 router.post('/adminLogin', adminLogin);
 router.post('/adminRegister', authenticateAdmin, adminRegister);
