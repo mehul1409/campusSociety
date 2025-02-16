@@ -19,6 +19,9 @@ const eventSchema = new mongoose.Schema({
             type: String,
             required: true
         },
+        photo:{
+            type:Buffer,
+        }
     },
     postedBy: {
         type: mongoose.Schema.Types.ObjectId,

@@ -102,6 +102,7 @@ const changePassword = async (req, res) => {
 };
 
 const postEvent = async (req, res) => {
+  const photo = req.file;
   const { coordinatorId, eventDetails } = req.body;
 
   try {
@@ -116,6 +117,7 @@ const postEvent = async (req, res) => {
         title: eventDetails.title,
         description: eventDetails.description,
         date: eventDetails.date,
+        photo: photo ? photo.buffer : null,
       },
       postedBy: req.coordinatorId,
       timestamp: new Date()
