@@ -50,12 +50,15 @@ const createHub = async (req, res) => {
   //Coordinator Details : name, email
 
   try {
-
     const formDataToSend = req.body
+
+    console.log(formDataToSend)
     const collegeId = formDataToSend.collegeId
     const hubName = formDataToSend.hubName
     const coordinatorName = formDataToSend.coordinatorName
     const coordinatorEmail = formDataToSend.coordinatorEmail
+
+    console.log(req.file)
 
     const college = await College.findById(collegeId);
     if (!college) {
