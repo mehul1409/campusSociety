@@ -52,6 +52,10 @@ const createHub = async (req, res) => {
   try {
     const formDataToSend = req.body
 
+    console.log(req.body);
+
+    console.log('Form Data:', formDataToSend);
+
     console.log(formDataToSend)
     const collegeId = formDataToSend.collegeId
     const hubName = formDataToSend.hubName
@@ -59,6 +63,13 @@ const createHub = async (req, res) => {
     const coordinatorEmail = formDataToSend.coordinatorEmail
 
     console.log(req.file)
+
+    if (!req.file) {
+      return res.status(400).json({ message: 'No image uploaded' });
+    }
+
+    const result = await cloudinary.uploader.upload(req.file.path);
+    console.log(result);
 
     const college = await College.findById(collegeId);
     if (!college) {
@@ -77,12 +88,6 @@ const createHub = async (req, res) => {
     });
 
     const savedCoordinator = await newCoordinator.save();
-
-    if (!req.file) {
-      return res.status(400).json({ message: 'No image uploaded' });
-    }
-
-    const result = await cloudinary.uploader.upload(req.file.path);
 
     const newHub = new Hub({
       hubName,
