@@ -108,8 +108,9 @@ const createHub = async (req, res) => {
       from: process.env.EMAIL_USER,
       to: coordinatorEmail,
       subject: 'Your Hub Portal Login Details',
-      text: `Hello ${coordinatorName},\n\nYou have been assigned as the coordinator for the hub "${hubName}". Here are your login details:\n\nEMAIL: ${coordinatorEmail}\nPassword: ${generatedPassword}\n\nPlease log in at https://campussociety.vercel.app/\n\nBest regards,\n[Team Campus Society]`,
+      text: `Hello ${coordinatorName},\n\nYou have been assigned as the coordinator for the hub "${hubName}". Here are your login details:\n\nEMAIL: ${coordinatorEmail}\nPassword: ${generatedPassword}\n\nPlease follow these steps to log in to your hub:\n\n1. Click on "Register Now" on https://campussociety.vercel.app/\n2. Click on "Already have an account"\n3. Use the above credentials to log in\n4. Select the "Coordinator" role\n5. Explore your post and updates from JYC\n\nBest regards,\n[Team Campus Society]`,
     };
+    
 
     await transporter.sendMail(mailOptions);
 
