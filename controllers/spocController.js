@@ -253,7 +253,7 @@ const requestPasswordReset = async (req, res) => {
 
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-    const resetLink = `http://localhost:5173/reset-password?token=${token}&role=${role}`;
+    const resetLink = `https://campussociety.vercel.app/reset-password?token=${token}&role=${role}`;
 
     await sendEmail(user.email, 'Password Reset Request', `Click on the link to reset your password: ${resetLink}`);
 
