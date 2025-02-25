@@ -12,6 +12,8 @@ const authenticateAdmin = require('./middleware/adminToken.js');
 const { getAllColleges } = require('./controllers/addCollege.js');
 const {getAllHubs,updateHub,deleteHub} = require('./controllers/hub.js')
 const {getEventsByCoordinator,getEventById} = require('./controllers/coordinatorController.js')
+const { sendOtp, verifyOtp } = require('./controllers/otpController.js');
+
 
 const app = express();
 const router = express.Router();
@@ -58,6 +60,9 @@ router.put('/:hubId/hubupdate', updateHub);
 router.delete('/:hubId/hubdelete', deleteHub);
 router.post('/getAllEvents', getEventsByCoordinator);
 router.get('/getEventById/:eventId',getEventById);
+
+router.post('/sendOtp', sendOtp);
+router.post('/verifyOtp', verifyOtp);
 
 app.use('/api', router);
 app.use('/admin', authenticateAdmin, adminrouter);
