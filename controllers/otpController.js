@@ -67,7 +67,7 @@ exports.sendOtp = async (req, res) => {
       }
   
       // Remove OTP after successful verification
-      // await OtpModel.deleteOne({ email });
+       await OtpModel.deleteOne({ email });
   
       res.status(200).json({ message: "OTP verified successfully" });
     } catch (error) {
