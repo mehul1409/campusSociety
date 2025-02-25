@@ -1,5 +1,6 @@
 const express = require('express');
 const coordinatorRouter = express.Router();
+const { upload } = require('../services/uploadService.js');
 
 const {changePassword,postEvent, coordinatorLogin, requestPasswordReset, resetPassword, getEventsByCoordinator, editEvent, deleteEvent, getEventById} = require('../controllers/coordinatorController.js');
 const verifyCoordinatorToken = require('../middleware/coordinatorToken.js');
@@ -8,7 +9,7 @@ coordinatorRouter.post('/eventsByCoordinator',verifyCoordinatorToken, getEventsB
 coordinatorRouter.put('/editEvent',verifyCoordinatorToken, editEvent);
 coordinatorRouter.delete('/deleteEvent',verifyCoordinatorToken, deleteEvent);
 coordinatorRouter.get('/getEventById/:eventId',verifyCoordinatorToken, getEventById);
-coordinatorRouter.post('/postEvent',verifyCoordinatorToken ,postEvent);
+coordinatorRouter.post('/postEvent',verifyCoordinatorToken, upload.single('photo') ,postEvent);
 
 coordinatorRouter.post('/changePassword',verifyCoordinatorToken,changePassword);
 coordinatorRouter.post('/login', coordinatorLogin);

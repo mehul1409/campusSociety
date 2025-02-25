@@ -7,6 +7,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const sendEmail = require('../helpers/sendEmail.js');
+const { cloudinary } = require('../services/uploadService');
 
 const changePassword = async (req, res) => {
   const { email, currentPassword, newPassword } = req.body;
@@ -44,11 +45,32 @@ const createHub = async (req, res) => {
     },
   });
 
-  const { collegeId, hubName, coordinatorDetails } = req.body;
+  // const { collegeId, hubName, coordinatorDetails } = req.body;
 
   //Coordinator Details : name, email
 
   try {
+    const formDataToSend = req.body
+
+    console.log(req.body);
+
+    console.log('Form Data:', formDataToSend);
+
+    console.log(formDataToSend)
+    const collegeId = formDataToSend.collegeId
+    const hubName = formDataToSend.hubName
+    const coordinatorName = formDataToSend.coordinatorName
+    const coordinatorEmail = formDataToSend.coordinatorEmail
+
+    console.log(req.file)
+
+    if (!req.file) {
+      return res.status(400).json({ message: 'No image uploaded' });
+    }
+
+    const result = await cloudinary.uploader.upload(req.file.path);
+    console.log(result);
+
     const college = await College.findById(collegeId);
     if (!college) {
       return res.status(404).json({ message: 'College not found' });
@@ -58,8 +80,8 @@ const createHub = async (req, res) => {
     const hashedPassword = await bcrypt.hash(generatedPassword, 10);
 
     const newCoordinator = new Coordinator({
-      name: coordinatorDetails.name,
-      email: coordinatorDetails.email,
+      name: coordinatorName,
+      email: coordinatorEmail,
       password: hashedPassword,
       collegeId,
       hubId: null,
@@ -71,6 +93,7 @@ const createHub = async (req, res) => {
       hubName,
       collegeId,
       coordinatorId: savedCoordinator._id,
+      photo: result.secure_url,
     });
 
     const savedHub = await newHub.save();
@@ -83,10 +106,11 @@ const createHub = async (req, res) => {
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
-      to: coordinatorDetails.email,
+      to: coordinatorEmail,
       subject: 'Your Hub Portal Login Details',
-      text: `Hello ${coordinatorDetails.name},\n\nYou have been assigned as the coordinator for the hub "${hubName}". Here are your login details:\n\nEMAIL: ${coordinatorDetails.email}\nPassword: ${generatedPassword}\n\nPlease log in at https://campussociety.vercel.app/\n\nBest regards,\n[Team Campus Society]`,
+      text: `Hello ${coordinatorName},\n\nYou have been assigned as the coordinator for the hub "${hubName}". Here are your login details:\n\nEMAIL: ${coordinatorEmail}\nPassword: ${generatedPassword}\n\nPlease follow these steps to log in to your hub:\n\n1. Click on "Register Now" on https://campussociety.vercel.app/\n2. Click on "Already have an account"\n3. Use the above credentials to log in\n4. Select the "Coordinator" role\n5. Explore your post and updates from JYC\n\nBest regards,\n[Team Campus Society]`,
     };
+    
 
     await transporter.sendMail(mailOptions);
 
@@ -229,7 +253,7 @@ const requestPasswordReset = async (req, res) => {
 
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-    const resetLink = `http://localhost:5173/reset-password?token=${token}&role=${role}`;
+    const resetLink = `https://campussociety.vercel.app/reset-password?token=${token}&role=${role}`;
 
     await sendEmail(user.email, 'Password Reset Request', `Click on the link to reset your password: ${resetLink}`);
 

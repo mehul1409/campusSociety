@@ -6,29 +6,31 @@ const nodecache = new NodeCache();
 
 const getAllHubs = async (req, res) => {
   try {
-    const customHeader = req.headers['access-token'];
-    
+    const customHeader = req.headers["access-token"];
+
     if (!customHeader) {
-      return res.status(400).json({ message: 'Access token not provided!' });
+      return res.status(400).json({ message: "Access token not provided!" });
     }
 
     if (customHeader === process.env.accessToken) {
-      let hubs;
-      if(nodecache.has('hubs')){
-        hubs = JSON.parse(nodecache.get('hubs'));
-      }else{
-        hubs = await Hub.find().populate('collegeId').populate('coordinatorId').populate('events');
-        nodecache.set('hubs',JSON.stringify(hubs));
-      }
+      // Flush the cache every time this API is called
+      nodecache.flushAll();
+
+      const hubs = await Hub.find()
+        .populate("collegeId")
+        .populate("coordinatorId")
+        .populate("events");
+
       res.status(200).json(hubs);
     } else {
-      return res.status(403).json({ message: 'Unauthorized access!' });
+      return res.status(403).json({ message: "Unauthorized access!" });
     }
   } catch (error) {
-    console.error('Error fetching hubs:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error("Error fetching hubs:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 const updateHub = async (req, res) => {
   const { hubName, collegeId, coordinatorId, coordinatorName } = req.body;

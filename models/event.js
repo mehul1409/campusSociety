@@ -19,14 +19,17 @@ const eventSchema = new mongoose.Schema({
             type: String,
             required: true
         },
+        photo:{
+            type:String,
+        }
     },
     media: [
         {
-            url: {
+            name: {
                 type: String,
                 required: true
             },
-            image: {
+            link: {
                 type: String,
                 required: true
             }

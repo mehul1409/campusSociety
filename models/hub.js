@@ -6,6 +6,9 @@ const hubSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
+    photo:{
+        type:String,
+    },
     collegeId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'College',

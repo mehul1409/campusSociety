@@ -1,12 +1,13 @@
 const express = require('express');
 const spocRouter = express.Router();
+const { upload } = require('../services/uploadService.js');
 
 const {changePassword, createHub, spocLogin, requestPasswordReset, resetPassword, getSpocById} = require('../controllers/spocController.js');
 const spoc = require('../models/spoc.js');
 const verifySpocToken = require('../middleware/spocToken.js');
 
 spocRouter.post('/changePassword',verifySpocToken,changePassword);
-spocRouter.post('/createHub',verifySpocToken, createHub);
+spocRouter.post('/createHub',verifySpocToken, upload.single('photo'), createHub);
 
 spocRouter.post('/login',spocLogin);
 spocRouter.post('/logout', (req, res) => {

@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const Hub = require('../models/hub.js');
 const Event = require('../models/event.js');
 const sendEmail = require('../helpers/sendEmail.js');
+const { cloudinary } = require('../services/uploadService');
 
 const getEventsByCoordinator = async (req, res) => {
   const { coordinatorId } = req.body;
@@ -107,9 +108,31 @@ const changePassword = async (req, res) => {
 };
 
 const postEvent = async (req, res) => {
-  const { coordinatorId, eventDetails, media } = req.body;
 
   try {
+    const formData = req.body;
+    const coordinatorId = formData.coordinatorId;
+    const title = formData.title;
+    const description = formData.description;
+    const date = formData.date;
+
+    if (!req.file) {
+      return res.status(400).json({ message: 'No image uploaded' });
+    }
+
+    const result = await cloudinary.uploader.upload(req.file.path);
+
+    let media = [];
+    if (formData.eventLinks) {
+      try {
+        media = typeof formData.eventLinks === "string" 
+          ? JSON.parse(formData.eventLinks) 
+          : formData.eventLinks;
+      } catch (error) {
+        return res.status(400).json({ message: "Invalid eventLinks format" });
+      }
+    }
+
     const hub = await Hub.findOne({ coordinatorId });
     if (!hub) {
       return res.status(404).json({ message: 'Hub not found' });
@@ -118,11 +141,12 @@ const postEvent = async (req, res) => {
     const newEvent = new Event({
       hubId: hub._id,
       eventDetails: {
-        title: eventDetails.title,
-        description: eventDetails.description,
-        date: eventDetails.date,
+        title: title,
+        description: description,
+        date: date,
+        photo: result.secure_url,
       },
-      media: media || [], // Default empty array if not provided
+      media,
       postedBy: req.coordinatorId,
       timestamp: new Date()
     });
@@ -268,7 +292,7 @@ const requestPasswordReset = async (req, res) => {
 
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-    const resetLink = `http://localhost:5173/reset-password?token=${token}&role=${role}`;
+    const resetLink = `https://campussociety.vercel.app/reset-password?token=${token}&role=${role}`;
 
     await sendEmail(user.email, 'Password Reset Request', `Click on the link to reset your password: ${resetLink}`);
 
