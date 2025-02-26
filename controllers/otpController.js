@@ -1,6 +1,7 @@
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
 const OtpModel = require("../models/OtpModel.js");
+const Student = require("../models/student.js")
 
 // Send OTP
 exports.sendOtp = async (req, res) => {
@@ -18,6 +19,11 @@ exports.sendOtp = async (req, res) => {
   
       if (!email) {
         return res.status(400).json({ message: "Email is required" });
+      }
+
+      const studentExists = await Student.findOne({ email });
+      if (studentExists) {
+        return res.status(400).json({ message: "Email ID already exists. Please log in." });
       }
   
       // Generate a 6-digit OTP
