@@ -39,8 +39,6 @@ const getEventById = async (req, res) => {
 const editEvent = async (req, res) => {
   const { eventId, eventDetails, media } = req.body;
 
-  console.log(eventDetails)
-
   try {
     const event = await Event.findById(eventId);
     if (!event) {
@@ -51,8 +49,21 @@ const editEvent = async (req, res) => {
     event.eventDetails.description = eventDetails.description || event.eventDetails.description;
     event.eventDetails.date = eventDetails.date || event.eventDetails.date;
 
-    if (media) {
-      event.media = media;
+    if (media && Array.isArray(media)) {
+      event.media = event.media.map((existingMedia) => {
+        const updatedMedia = media.find(
+          (newMedia) => newMedia.name === existingMedia.name
+        );
+        return updatedMedia
+          ? { ...existingMedia, link: updatedMedia.link }
+          : null;
+      }).filter(Boolean);
+
+      media.forEach((newMedia) => {
+        if (!event.media.some((existing) => existing.name === newMedia.name)) {
+          event.media.push(newMedia);
+        }
+      });
     }
 
     const updatedEvent = await event.save();
@@ -125,8 +136,8 @@ const postEvent = async (req, res) => {
     let media = [];
     if (formData.eventLinks) {
       try {
-        media = typeof formData.eventLinks === "string" 
-          ? JSON.parse(formData.eventLinks) 
+        media = typeof formData.eventLinks === "string"
+          ? JSON.parse(formData.eventLinks)
           : formData.eventLinks;
       } catch (error) {
         return res.status(400).json({ message: "Invalid eventLinks format" });
