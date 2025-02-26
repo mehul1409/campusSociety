@@ -6,7 +6,7 @@ const {changePassword,postEvent, coordinatorLogin, requestPasswordReset, resetPa
 const verifyCoordinatorToken = require('../middleware/coordinatorToken.js');
 
 coordinatorRouter.post('/eventsByCoordinator',verifyCoordinatorToken, getEventsByCoordinator);
-coordinatorRouter.put('/editEvent', editEvent);
+coordinatorRouter.put('/editEvent',verifyCoordinatorToken, editEvent);
 coordinatorRouter.delete('/deleteEvent',verifyCoordinatorToken, deleteEvent);
 coordinatorRouter.get('/getEventById/:eventId',verifyCoordinatorToken, getEventById);
 coordinatorRouter.post('/postEvent',verifyCoordinatorToken, upload.single('photo') ,postEvent);
