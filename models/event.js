@@ -13,7 +13,7 @@ const eventSchema = new mongoose.Schema({
         },
         description: {
             type: String,
-            required: true
+            // required: true
         },
         date: {
             type: String,
@@ -27,11 +27,11 @@ const eventSchema = new mongoose.Schema({
         {
             name: {
                 type: String,
-                required: true
+                // required: true
             },
             link: {
                 type: String,
-                required: true
+                // required: true
             }
         }
     ],
